@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>命理预测大师 - 完整演示</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        header {
+            text-align: center;
+            padding: 30px 20px;
+            color: white;
+        }
+        header h1 { font-size: 42px; margin-bottom: 10px; }
+        header p { opacity: 0.9; letter-spacing: 2px; }
+        
+        .tabs {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 30px;
+        }
+        .tab-btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 25px;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .tab-btn:hover { background: rgba(255,255,255,0.3); }
+        .tab-btn.active {
+            background: white;
+            color: #667eea;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        
+        .main-content {
+            display: flex;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+        .input-panel, .result-panel {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+        .input-panel { flex: 0 0 380px; }
+        .result-panel { flex: 1; min-width: 300px; }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+        }
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        
+        .calculate-btn {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .calculate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102,126,234,0.4);
+        }
+        
+        .result-title {
+            font-size: 24px;
+            color: #333;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #667eea;
+        }
+        .empty-result {
+            text-align: center;
+            color: #999;
+            padding: 60px 20px;
+        }
+        .empty-result svg {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 20px;
+            opacity: 0.3;
+        }
+        
+        /* 八字样式 */
+        .bazi-container { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 25px; }
+        .bazi-pillar {
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8ec 100%);
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+        }
+        .bazi-pillar .label { font-size: 12px; color: #666; margin-bottom: 8px; }
+        .bazi-pillar .gan { font-size: 28px; font-weight: bold; color: #667eea; margin-bottom: 5px; }
+        .bazi-pillar .zhi { font-size: 28px; font-weight: bold; color: #764ba2; }
+        .bazi-pillar .canggan { font-size: 11px; color: #999; margin-top: 8px; }
+        
+        .ten-gods-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .ten-god-item {
+            background: #f8f9fa;
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .ten-god-item .name { font-size: 12px; color: #666; margin-bottom: 5px; }
+        .ten-god-item .value { font-size: 16px; font-weight: bold; color: #333; }
+        
+        /* 紫微斗数样式 */
+        .ziwei-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .ziwei-gong {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+            min-height: 120px;
+            border: 2px solid transparent;
+            transition: all 0.3s;
+        }
+        .ziwei-gong.ming { border-color: #667eea; background: #f0f3ff; }
+        .ziwei-gong.shen { border-color: #764ba2; background: #f5f0ff; }
+        .ziwei-gong .gong-name {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .ziwei-gong .gong-name .tag {
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            background: #667eea;
+            color: white;
+        }
+        .ziwei-gong .stars {
+            font-size: 13px;
+            line-height: 1.6;
+        }
+        .ziwei-gong .star-zhu { color: #d32f2f; font-weight: bold; }
+        .ziwei-gong .star-ji { color: #1976d2; }
+        .ziwei-gong .star-fu { color: #388e3c; }
+        .ziwei-gong .star-sha { color: #666; }
+        
+        /* 六爻样式 */
+        .liuyao-container { display: flex; gap: 40px; flex-wrap: wrap; }
+        .gua-display { flex: 1; min-width: 200px; }
+        .gua-title { font-size: 18px; font-weight: bold; margin-bottom: 15px; color: #333; }
+        .yao-row {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+        .yao-symbol {
+            font-family: monospace;
+            font-size: 20px;
+            color: #333;
+        }
+        .yao-symbol.dong { color: #d32f2f; font-weight: bold; }
+        .yao-info { font-size: 13px; color: #666; }
+        .yao-info .liuqin { color: #667eea; }
+        .yao-info .liushen { color: #764ba2; }
+        
+        /* 奇门遁甲样式 */
+        .qimen-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+        .qimen-cell {
+            aspect-ratio: 1;
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid transparent;
+        }
+        .qimen-cell.center { background: #fff3e0; border-color: #ff9800; }
+        .qimen-cell .position { font-size: 12px; color: #999; margin-bottom: 5px; }
+        .qimen-cell .palace { font-size: 20px; font-weight: bold; color: #333; margin-bottom: 5px; }
+        .qimen-cell .door { font-size: 12px; color: #667eea; }
+        .qimen-cell .star { font-size: 12px; color: #764ba2; }
+        .qimen-cell .spirit { font-size: 11px; color: #388e3c; }
+        
+        .qimen-info {
+            margin-top: 20px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+        .qimen-info h4 { margin-bottom: 10px; color: #333; }
+        .qimen-info p { color: #666; line-height: 1.6; }
+        
+        @media (max-width: 768px) {
+            .main-content { flex-direction: column; }
+            .input-panel { flex: 1; }
+            .bazi-container { grid-template-columns: repeat(2, 1fr); }
+            .ten-gods-grid { grid-template-columns: repeat(3, 1fr); }
+            .ziwei-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>命理预测大师</h1>
+            <p>八字 · 紫微 · 六爻 · 奇门</p>
+        </header>
+        
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('bazi')">八字命理</button>
+            <button class="tab-btn" onclick="switchTab('ziwei')">紫微斗数</button>
+            <button class="tab-btn" onclick="switchTab('liuyao')">六爻占卜</button>
+            <button class="tab-btn" onclick="switchTab('qimen')">奇门遁甲</button>
+        </div>
+        
+        <div class="main-content">
+            <div class="input-panel">
+                <div id="input-form"></div>
+            </div>
+            <div class="result-panel">
+                <div id="result-display"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ==================== 数据定义 ====================
+        const TIAN_GAN = ['甲', '乙', '丙', '丁', '戊', '己', '庚', '辛', '壬', '癸'];
+        const DI_ZHI = ['子', '丑', '寅', '卯', '辰', '巳', '午', '未', '申', '酉', '戌', '亥'];
+        const WUXING = { '甲': '木', '乙': '木', '丙': '火', '丁': '火', '戊': '土', '己': '土', '庚': '金', '辛': '金', '壬': '水', '癸': '水' };
+        const GONG_ORDER = ['寅', '卯', '辰', '巳', '午', '未', '申', '酉', '戌', '亥', '子', '丑'];
+        const GONG_WEI = ['命宫', '兄弟', '夫妻', '子女', '财帛', '疾厄', '迁移', '仆役', '官禄', '田宅', '福德', '父母'];
+        const BA_GUA = ['乾', '兑', '离', '震', '巽', '坎', '艮', '坤'];
+        const JIU_GONG = ['坎', '坤', '震', '巽', '中', '乾', '兑', '艮', '离'];
+        const BA_MEN = ['休门', '生门', '伤门', '杜门', '景门', '死门', '惊门', '开门'];
+        const BA_SHEN = ['值符', '螣蛇', '太阴', '六合', '白虎', '玄武', '九地', '九天'];
+        
+        let currentTab = 'bazi';
+        
+        // ==================== 核心算法 ====================
+        
+        // 计算年柱
+        function getYearGanZhi(year) {
+            const gan = TIAN_GAN[(year - 4) % 10];
+            const zhi = DI_ZHI[(year - 4) % 12];
+            return { gan, zhi, ganZhi: gan + zhi };
+        }
+        
+        // 计算月柱
+        function getMonthGanZhi(year, month) {
+            const yearGanIndex = (year - 4) % 10;
+            const monthGanIndex = (yearGanIndex * 2 + month + 1) % 10;
+            const gan = TIAN_GAN[monthGanIndex];
+            const zhi = DI_ZHI[(month + 1) % 12];
+            return { gan, zhi, ganZhi: gan + zhi };
+        }
+        
+        // 计算日柱（简化版）
+        function getDayGanZhi(year, month, day) {
+            const baseDate = new Date(1900, 0, 31);
+            const targetDate = new Date(year, month - 1, day);
+            const diffDays = Math.floor((targetDate - baseDate) / (24 * 60 * 60 * 1000));
+            const gan = TIAN_GAN[diffDays % 10];
+            const zhi = DI_ZHI[diffDays % 12];
+            return { gan, zhi, ganZhi: gan + zhi };
+        }
+        
+        // 计算时柱
+        function getHourGanZhi(dayGan, hour) {
+            const dayGanIndex = TIAN_GAN.indexOf(dayGan);
+            const shiChen = Math.floor((hour + 1) / 2) % 12;
+            const hourGanIndex = (dayGanIndex * 2 + shiChen) % 10;
+            const gan = TIAN_GAN[hourGanIndex];
+            const zhi = DI_ZHI[shiChen];
+            return { gan, zhi, ganZhi: gan + zhi };
+        }
+        
+        // 计算十神
+        function getTenGods(dayGan, ganZhi) {
+            const dayElement = WUXING[dayGan];
+            const targetElement = WUXING[ganZhi[0]];
+            const dayYinYang = ['甲', '丙', '戊', '庚', '壬'].includes(dayGan);
+            const targetYinYang = ['甲', '丙', '戊', '庚', '壬'].includes(ganZhi[0]);
+            
+            if (dayElement === targetElement) {
+                return dayYinYang === targetYinYang ? '比肩' : '劫财';
+            }
+            // 简化十神判断
+            const relations = {
+                '木': { '火': '食神', '土': '偏财', '金': '正官', '水': '正印' },
+                '火': { '土': '食神', '金': '偏财', '水': '正官', '木': '正印' },
+                '土': { '金': '食神', '水': '偏财', '木': '正官', '火': '正印' },
+                '金': { '水': '食神', '木': '偏财', '火': '正官', '土': '正印' },
+                '水': { '木': '食神', '火': '偏财', '土': '正官', '金': '正印' }
+            };
+            return relations[dayElement]?.[targetElement] || '未知';
+        }
+        
+        // 计算命宫
+        function getMingGong(lunarMonth, hour) {
+            const monthIndex = lunarMonth - 1;
+            const hourIndex = Math.floor((hour + 1) / 2) % 12;
+            return (monthIndex + hourIndex) % 12;
+        }
+        
+        // 时间起卦
+        function getLiuYao(year, month, day, hour) {
+            const shang = (year + month + day) % 8 || 8;
+            const xia = (year + month + day + hour) % 8 || 8;
+            const dong = (year + month + day + hour) % 6 || 6;
+            return { shang: BA_GUA[shang - 1], xia: BA_GUA[xia - 1], dong: dong - 1 };
+        }
+        
+        // 奇门遁甲
+        function getQiMen(year, month, day, hour) {
+            const juShu = (year + month + day) % 9 || 9;
+            const isYang = (month * 100 + day) >= 1222 || (month * 100 + day) < 622;
+            return { juShu, isYang, yinYang: isYang ? '阳遁' : '阴遁' };
+        }
+        
+        // ==================== 界面渲染 ====================
+        
+        function switchTab(tab) {
+            currentTab = tab;
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            renderInputForm();
+            renderResult();
+        }
+        
+        function renderInputForm() {
+            const formDiv = document.getElementById('input-form');
+            let html = '';
+            
+            if (currentTab === 'bazi' || currentTab === 'ziwei') {
+                html = `
+                    <div class="form-group">
+                        <label>出生日期</label>
+                        <input type="date" id="birth-date" value="1990-05-15">
+                    </div>
+                    <div class="form-group">
+                        <label>出生时间</label>
+                        <input type="time" id="birth-time" value="12:00">
+                    </div>
+                    <div class="form-group">
+                        <label>性别</label>
+                        <select id="gender">
+                            <option value="male">男</option>
+                            <option value="female">女</option>
+                        </select>
+                    </div>
+                    ${currentTab === 'ziwei' ? `
+                    <div class="form-group">
+                        <label>农历月份（用于紫微斗数）</label>
+                        <input type="number" id="lunar-month" min="1" max="12" value="4">
+                    </div>` : ''}
+                `;
+            } else if (currentTab === 'liuyao') {
+                html = `
+                    <div class="form-group">
+                        <label>起卦时间</label>
+                        <input type="datetime-local" id="divination-time" value="2024-02-17T12:00">
+                    </div>
+                    <div class="form-group">
+                        <label>或输入数字（可选）</label>
+                        <div class="form-row">
+                            <input type="number" id="num1" placeholder="第一个数" value="123">
+                            <input type="number" id="num2" placeholder="第二个数" value="456">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>所问之事</label>
+                        <input type="text" id="question" placeholder="例如：事业发展、婚姻感情...">
+                    </div>
+                `;
+            } else if (currentTab === 'qimen') {
+                html = `
+                    <div class="form-group">
+                        <label>预测时间</label>
+                        <input type="datetime-local" id="qimen-time" value="2024-02-17T12:00">
+                    </div>
+                    <div class="form-group">
+                        <label>预测目的</label>
+                        <select id="purpose">
+                            <option value="career">事业发展</option>
+                            <option value="wealth">财运投资</option>
+                            <option value="love">感情婚姻</option>
+                            <option value="health">健康疾病</option>
+                            <option value="travel">出行迁移</option>
+                            <option value="study">学业考试</option>
+                        </select>
+                    </div>
+                `;
+            }
+            
+            html += `<button class="calculate-btn" onclick="calculate()">开始测算</button>`;
+            formDiv.innerHTML = html;
+        }
+        
+        function renderResult() {
+            const resultDiv = document.getElementById('result-display');
+            resultDiv.innerHTML = `
+                <div class="empty-result">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <path d="M12 6v6l4 2"/>
+                    </svg>
+                    <p>请输入信息后点击"开始测算"</p>
+                </div>
+            `;
+        }
+        
+        function calculate() {
+            const resultDiv = document.getElementById('result-display');
+            
+            if (currentTab === 'bazi') {
+                const date = new Date(document.getElementById('birth-date').value);
+                const time = document.getElementById('birth-time').value;
+                const hour = parseInt(time.split(':')[0]);
+                const year = date.getFullYear();
+                const month = date.getMonth() + 1;
+                const day = date.getDate();
+                
+                const yearGZ = getYearGanZhi(year);
+                const monthGZ = getMonthGanZhi(year, month);
+                const dayGZ = getDayGanZhi(year, month, day);
+                const hourGZ = getHourGanZhi(dayGZ.gan, hour);
+                
+                resultDiv.innerHTML = `
+                    <h3 class="result-title">八字命盘</h3>
+                    <div class="bazi-container">
+                        <div class="bazi-pillar">
+                            <div class="label">年柱</div>
+                            <div class="gan">${yearGZ.gan}</div>
+                            <div class="zhi">${yearGZ.zhi}</div>
+                            <div class="canggan">${getTenGods(dayGZ.gan, yearGZ.ganZhi)}</div>
+                        </div>
+                        <div class="bazi-pillar">
+                            <div class="label">月柱</div>
+                            <div class="gan">${monthGZ.gan}</div>
+                            <div class="zhi">${monthGZ.zhi}</div>
+                            <div class="canggan">${getTenGods(dayGZ.gan, monthGZ.ganZhi)}</div>
+                        </div>
+                        <div class="bazi-pillar">
+                            <div class="label">日柱（日主）</div>
+                            <div class="gan">${dayGZ.gan}</div>
+                            <div class="zhi">${dayGZ.zhi}</div>
+                            <div class="canggan">日元</div>
+                        </div>
+                        <div class="bazi-pillar">
+                            <div class="label">时柱</div>
+                            <div class="gan">${hourGZ.gan}</div>
+                            <div class="zhi">${hourGZ.zhi}</div>
+                            <div class="canggan">${getTenGods(dayGZ.gan, hourGZ.ganZhi)}</div>
+                        </div>
+                    </div>
+                    <h4 style="margin: 20px 0 15px; color: #333;">十神分析</h4>
+                    <div class="ten-gods-grid">
+                        <div class="ten-god-item"><div class="name">比肩</div><div class="value">${getTenGods(dayGZ.gan, dayGZ.gan)}</div></div>
+                        <div class="ten-god-item"><div class="name">劫财</div><div class="value">${getTenGods(dayGZ.gan, TIAN_GAN[(TIAN_GAN.indexOf(dayGZ.gan)+1)%10])}</div></div>
+                        <div class="ten-god-item"><div class="name">食神</div><div class="value">查看上方</div></div>
+                        <div class="ten-god-item"><div class="name">伤官</div><div class="value">查看上方</div></div>
+                        <div class="ten-god-item"><div class="name">偏财</div><div class="value">查看上方</div></div>
+                        <div class="ten-god-item"><div class="name">正财</div><div class="value">查看上方</div></div>
+                        <div class="ten-god-item"><div class="name">七杀</div><div class="value">查看上方</div></div>
+                        <div class="ten-god-item"><div class="name">正官</div><div class="value">查看上方</div></div>
+                        <div class="ten-god-item"><div class="name">偏印</div><div class="value">查看上方</div></div>
+                        <div class="ten-god-item"><div class="name">正印</div><div class="value">查看上方</div></div>
+                    </div>
+                    <div style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px;">
+                        <p style="color: #666; line-height: 1.8;">
+                            <strong>日主：</strong>${dayGZ.gan}（${WUXING[dayGZ.gan]}）<br>
+                            <strong>生肖：</strong>${['鼠','牛','虎','兔','龙','蛇','马','羊','猴','鸡','狗','猪'][(year-4)%12]}<br>
+                            <strong>分析：</strong>此命日主为${dayGZ.gan}，五行属${WUXING[dayGZ.gan]}。
+                            年柱${yearGZ.ganZhi}，月柱${monthGZ.ganZhi}，时柱${hourGZ.ganZhi}。
+                            具体运势需结合大运流年综合分析。
+                        </p>
+                    </div>
+                `;
+            } else if (currentTab === 'ziwei') {
+                const lunarMonth = parseInt(document.getElementById('lunar-month').value) || 4;
+                const time = document.getElementById('birth-time').value;
+                const hour = parseInt(time.split(':')[0]);
+                const mingGongIndex = getMingGong(lunarMonth, hour);
+                
+                let gongHtml = '';
+                for (let i = 0; i < 12; i++) {
+                    const gongName = GONG_WEI[(i - mingGongIndex + 12) % 12];
+                    const isMing = i === mingGongIndex;
+                    const isShen = i === (lunarMonth - 1 - Math.floor((hour + 1) / 2) % 12 + 12) % 12;
+                    let tag = '';
+                    if (isMing) tag = '<span class="tag">命宫</span>';
+                    else if (isShen) tag = '<span class="tag" style="background:#764ba2;">身宫</span>';
+                    
+                    gongHtml += `
+                        <div class="ziwei-gong ${isMing ? 'ming' : ''} ${isShen ? 'shen' : ''}">
+                            <div class="gong-name">${GONG_ORDER[i]}宫 ${tag}</div>
+                            <div class="stars">
+                                <div class="star-zhu">紫微</div>
+                                <div class="star-ji">天机</div>
+                                <div class="star-fu">禄存</div>
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                resultDiv.innerHTML = `
+                    <h3 class="result-title">紫微斗数命盘</h3>
+                    <div class="ziwei-grid">${gongHtml}</div>
+                    <div style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px;">
+                        <p style="color: #666; line-height: 1.8;">
+                            <strong>命宫位置：</strong>${GONG_ORDER[mingGongIndex]}宫<br>
+                            <strong>农历月份：</strong>${lunarMonth}月<br>
+                            <strong>出生时辰：</strong>${DI_ZHI[Math.floor((hour + 1) / 2) % 12]}时<br>
+                            <strong>说明：</strong>紫微斗数以命宫为核心，结合十二宫及星曜组合进行命理分析。
+                            以上为简化演示，实际排盘需考虑更多星曜及四化飞星。
+                        </p>
+                    </div>
+                `;
+            } else if (currentTab === 'liuyao') {
+                const timeStr = document.getElementById('divination-time').value;
+                const date = new Date(timeStr);
+                const year = date.getFullYear();
+                const month = date.getMonth() + 1;
+                const day = date.getDate();
+                const hour = date.getHours();
+                
+                const gua = getLiuYao(year, month, day, hour);
+                const yaoSymbols = ['━━━', '━ ━'];
+                
+                resultDiv.innerHTML = `
+                    <h3 class="result-title">六爻占卜结果</h3>
+                    <div class="liuyao-container">
+                        <div class="gua-display">
+                            <div class="gua-title">本卦：${gua.xia}下${gua.shang}上</div>
+                            ${[5,4,3,2,1,0].map(i => `
+                                <div class="yao-row">
+                                    <span class="yao-symbol ${i === gua.dong ? 'dong' : ''}">${yaoSymbols[Math.random() > 0.5 ? 0 : 1]}</span>
+                                    <span class="yao-info">
+                                        <span class="liuqin">${['父母','兄弟','子孙','妻财','官鬼','父母'][i]}</span>
+                                        <span class="liushen">${['青龙','朱雀','勾陈','螣蛇','白虎','玄武'][i]}</span>
+                                        ${i === gua.dong ? ' <strong style="color:#d32f2f;">[动]</strong>' : ''}
+                                    </span>
+                                </div>
+                            `).join('')}
+                        </div>
+                        <div class="gua-display">
+                            <div class="gua-title">变卦</div>
+                            <div style="padding: 20px; background: #f8f9fa; border-radius: 8px;">
+                                <p style="color: #666; line-height: 1.8;">
+                                    <strong>动爻：</strong>第${gua.dong + 1}爻<br>
+                                    <strong>世爻：</strong>第${gua.dong + 1}爻<br>
+                                    <strong>应爻：</strong>第${(gua.dong + 3) % 6 + 1}爻<br><br>
+                                    <strong>解读：</strong><br>
+                                    一爻动，以动爻辞断之。动爻在${gua.dong + 1}爻，
+                                    代表事情的变化和发展趋势。世爻代表自己，
+                                    应爻代表对方或所问之事。
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else if (currentTab === 'qimen') {
+                const timeStr = document.getElementById('qimen-time').value;
+                const date = new Date(timeStr);
+                const year = date.getFullYear();
+                const month = date.getMonth() + 1;
+                const day = date.getDate();
+                const hour = date.getHours();
+                
+                const qimen = getQiMen(year, month, day, hour);
+                
+                resultDiv.innerHTML = `
+                    <h3 class="result-title">奇门遁甲排盘</h3>
+                    <div class="qimen-grid">
+                        ${[4,9,2,3,5,7,8,1,6].map((pos, i) => `
+                            <div class="qimen-cell ${pos === 5 ? 'center' : ''}">
+                                <div class="position">${pos}宫</div>
+                                <div class="palace">${JIU_GONG[pos-1]}</div>
+                                <div class="door">${BA_MEN[(hour + i) % 8]}</div>
+                                <div class="star">天${['蓬','任','冲','辅','英','芮','柱','心','禽'][i]}</div>
+                                <div class="spirit">${BA_SHEN[i % 8]}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                    <div class="qimen-info">
+                        <h4>局数信息</h4>
+                        <p>
+                            <strong>遁法：</strong>${qimen.yinYang}<br>
+                            <strong>局数：</strong>${qimen.juShu}局<br>
+                            <strong>预测时间：</strong>${year}年${month}月${day}日 ${hour}时<br><br>
+                            <strong>说明：</strong>奇门遁甲以九宫为基础，结合八门、九星、八神进行预测。
+                            阳遁顺布六仪，逆布三奇；阴遁逆布六仪，顺布三奇。
+                        </p>
+                    </div>
+                `;
+            }
+        }
+        
+        // 初始化
+        renderInputForm();
+        renderResult();
+    </script>
+</body>
+</html>

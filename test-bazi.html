@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>八字计算测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-result {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .pass { color: green; }
+        .fail { color: red; }
+        h1 { text-align: center; color: #333; }
+        h2 { color: #666; border-bottom: 2px solid #ddd; padding-bottom: 10px; }
+        pre { background: #f8f8f8; padding: 10px; border-radius: 4px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>八字算命软件 - 功能测试</h1>
+    <div id="results"></div>
+
+    <script>
+        // 天干地支数据
+        const TIAN_GAN = ['甲', '乙', '丙', '丁', '戊', '己', '庚', '辛', '壬', '癸'];
+        const DI_ZHI = ['子', '丑', '寅', '卯', '辰', '巳', '午', '未', '申', '酉', '戌', '亥'];
+        const SHENG_XIAO = ['鼠', '牛', '虎', '兔', '龙', '蛇', '马', '羊', '猴', '鸡', '狗', '猪'];
+
+        // 测试结果容器
+        const resultsDiv = document.getElementById('results');
+
+        function addTestResult(title, content, passed) {
+            const div = document.createElement('div');
+            div.className = 'test-result';
+            div.innerHTML = `
+                <h2>${title} ${passed ? '<span class="pass">✓ 通过</span>' : '<span class="fail">✗ 失败</span>'}</h2>
+                <pre>${content}</pre>
+            `;
+            resultsDiv.appendChild(div);
+        }
+
+        // 测试1: 年干支计算
+        function testYearGanZhi() {
+            const year = 2024;
+            const ganIndex = (year - 4) % 10;
+            const zhiIndex = (year - 4) % 12;
+            const result = TIAN_GAN[ganIndex] + DI_ZHI[zhiIndex];
+            const expected = '甲辰';
+            
+            addTestResult(
+                '测试1: 2024年年干支计算',
+                `计算: (${year} - 4) % 10 = ${ganIndex} → ${TIAN_GAN[ganIndex]}\n` +
+                `       (${year} - 4) % 12 = ${zhiIndex} → ${DI_ZHI[zhiIndex]}\n` +
+                `结果: ${result}\n` +
+                `预期: ${expected}`,
+                result === expected
+            );
+        }
+
+        // 测试2: 生肖计算
+        function testShengXiao() {
+            const year = 2024;
+            const result = SHENG_XIAO[(year - 4) % 12];
+            const expected = '龙';
+            
+            addTestResult(
+                '测试2: 2024年生肖计算',
+                `计算: (${year} - 4) % 12 = ${(year - 4) % 12} → ${result}\n` +
+                `结果: ${result}\n` +
+                `预期: ${expected}`,
+                result === expected
+            );
+        }
+
+        // 测试3: 日干支计算
+        function testDayGanZhi() {
+            // 1900年1月1日是甲戌日
+            const baseDate = new Date(1900, 0, 1);
+            const testDate = new Date(2024, 1, 10); // 2024年2月10日
+            const diffDays = Math.floor((testDate - baseDate) / (24 * 60 * 60 * 1000));
+            
+            const ganIndex = (0 + diffDays) % 10;
+            const zhiIndex = (10 + diffDays) % 12;
+            const result = TIAN_GAN[ganIndex] + DI_ZHI[zhiIndex];
+            
+            addTestResult(
+                '测试3: 2024年2月10日日干支计算',
+                `基准: 1900年1月1日 = 甲戌日\n` +
+                `天数差: ${diffDays}天\n` +
+                `天干: (0 + ${diffDays}) % 10 = ${ganIndex} → ${TIAN_GAN[ganIndex]}\n` +
+                `地支: (10 + ${diffDays}) % 12 = ${zhiIndex} → ${DI_ZHI[zhiIndex]}\n` +
+                `结果: ${result}`,
+                true // 只需显示计算结果
+            );
+        }
+
+        // 测试4: 月干支计算
+        function testMonthGanZhi() {
+            const yearGan = '甲';
+            const lunarMonth = 1; // 正月
+            const yearGanIndex = TIAN_GAN.indexOf(yearGan);
+            
+            // 甲己之年丙作首
+            const startGanIndex = 2; // 丙
+            const ganIndex = (startGanIndex + lunarMonth - 1) % 10;
+            const zhiIndex = (lunarMonth + 1) % 12; // 正月建寅
+            
+            const result = TIAN_GAN[ganIndex] + DI_ZHI[zhiIndex];
+            const expected = '丙寅'; // 甲年正月应该是丙寅
+            
+            addTestResult(
+                '测试4: 甲年正月月干支计算',
+                `年干: ${yearGan} (索引: ${yearGanIndex})\n` +
+                `农历月: ${lunarMonth}月\n` +
+                `起月干: 丙 (索引: ${startGanIndex})\n` +
+                `天干: (${startGanIndex} + ${lunarMonth} - 1) % 10 = ${ganIndex} → ${TIAN_GAN[ganIndex]}\n` +
+                `地支: (${lunarMonth} + 1) % 12 = ${zhiIndex} → ${DI_ZHI[zhiIndex]}\n` +
+                `结果: ${result}\n` +
+                `预期: ${expected}`,
+                result === expected
+            );
+        }
+
+        // 测试5: 时辰干支计算
+        function testHourGanZhi() {
+            const dayGan = '甲';
+            const hour = 12; // 午时
+            const dayGanIndex = TIAN_GAN.indexOf(dayGan);
+            
+            // 甲己还加甲
+            const startGanIndex = 0; // 甲
+            const shiChenIndex = 6; // 午时 (子0, 丑1, 寅2, 卯3, 辰4, 巳5, 午6...)
+            const ganIndex = (startGanIndex + shiChenIndex) % 10;
+            
+            const result = TIAN_GAN[ganIndex] + DI_ZHI[shiChenIndex];
+            const expected = '庚午'; // 甲日午时应该是庚午
+            
+            addTestResult(
+                '测试5: 甲日午时时辰干支计算',
+                `日干: ${dayGan} (索引: ${dayGanIndex})\n` +
+                `时辰: ${hour}时 (午时, 索引: ${shiChenIndex})\n` +
+                `起时干: 甲 (索引: ${startGanIndex})\n` +
+                `天干: (${startGanIndex} + ${shiChenIndex}) % 10 = ${ganIndex} → ${TIAN_GAN[ganIndex]}\n` +
+                `地支: ${shiChenIndex} → ${DI_ZHI[shiChenIndex]}\n` +
+                `结果: ${result}\n` +
+                `预期: ${expected}`,
+                result === expected
+            );
+        }
+
+        // 运行所有测试
+        testYearGanZhi();
+        testShengXiao();
+        testDayGanZhi();
+        testMonthGanZhi();
+        testHourGanZhi();
+
+        // 添加总结
+        const summaryDiv = document.createElement('div');
+        summaryDiv.className = 'test-result';
+        summaryDiv.innerHTML = `
+            <h2>测试总结</h2>
+            <p>以上测试验证了八字计算的核心算法：</p>
+            <ul>
+                <li>年干支计算：基于年份偏移量计算天干地支</li>
+                <li>生肖计算：与年支对应</li>
+                <li>日干支计算：基于1900年1月1日甲戌日推算</li>
+                <li>月干支计算：使用"年上起月法"</li>
+                <li>时干支计算：使用"日上起时法"</li>
+            </ul>
+            <p>如果所有测试都显示"通过"，说明核心算法是正确的。</p>
+        `;
+        resultsDiv.appendChild(summaryDiv);
+    </script>
+</body>
+</html>

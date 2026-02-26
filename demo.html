@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>八字算命大师 - Demo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            padding: 40px 20px;
+            color: white;
+        }
+        
+        header h1 {
+            font-size: 42px;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .subtitle {
+            font-size: 16px;
+            opacity: 0.9;
+            letter-spacing: 2px;
+        }
+        
+        .main-content {
+            display: flex;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .input-section {
+            flex: 0 0 400px;
+        }
+        
+        .input-form-container {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 30px;
+            border-radius: 15px;
+            color: white;
+        }
+        
+        .input-form-container h2 {
+            text-align: center;
+            margin-bottom: 25px;
+            font-size: 24px;
+        }
+        
+        .input-form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .form-group label {
+            font-weight: 600;
+            font-size: 14px;
+        }
+        
+        .radio-group {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .radio-label {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
+        }
+        
+        .date-selects, .time-selects {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .form-select {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 8px;
+            background: rgba(255,255,255,0.9);
+            color: #333;
+            font-size: 14px;
+            cursor: pointer;
+            flex: 1;
+        }
+        
+        .submit-btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            background: #ff6b6b;
+            color: white;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+        
+        .submit-btn:hover {
+            background: #ff5252;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255,107,107,0.4);
+        }
+        
+        .result-section {
+            flex: 1;
+            min-width: 400px;
+        }
+        
+        .result-display {
+            background: rgba(255,255,255,0.95);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+        
+        .section {
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .section:last-child {
+            border-bottom: none;
+        }
+        
+        .section h3 {
+            color: #333;
+            font-size: 18px;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+        
+        .bazi-table {
+            display: grid;
+            grid-template-columns: 60px repeat(4, 1fr);
+            gap: 10px;
+            text-align: center;
+        }
+        
+        .bazi-cell {
+            padding: 12px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 600;
+        }
+        
+        .bazi-cell.label {
+            background: #667eea;
+            color: white;
+        }
+        
+        .bazi-cell.gan {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+        
+        .bazi-cell.zhi {
+            background: #fff3e0;
+            color: #f57c00;
+        }
+        
+        .bazi-cell.day-master {
+            background: #ffebee;
+            color: #c62828;
+            border: 2px solid #ef5350;
+        }
+        
+        .shengxiao {
+            text-align: center;
+            margin-top: 15px;
+            font-size: 18px;
+        }
+        
+        .highlight {
+            color: #667eea;
+            font-weight: 700;
+            font-size: 24px;
+        }
+        
+        .wuxing-bars {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .wuxing-bar-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .wuxing-name {
+            width: 30px;
+            font-weight: 700;
+            font-size: 16px;
+        }
+        
+        .bar-container {
+            flex: 1;
+            height: 20px;
+            background: #e0e0e0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        .bar-fill {
+            height: 100%;
+            border-radius: 10px;
+            transition: width 0.5s ease;
+        }
+        
+        .wuxing-value {
+            width: 50px;
+            text-align: right;
+            font-weight: 600;
+        }
+        
+        .info-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        
+        .wuxing-tag {
+            padding: 4px 12px;
+            border-radius: 12px;
+            color: white;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .placeholder {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: rgba(255,255,255,0.7);
+            margin-top: 30px;
+        }
+        
+        @media (max-width: 900px) {
+            .main-content {
+                flex-direction: column;
+            }
+            .input-section {
+                flex: 1;
+            }
+            .result-section {
+                min-width: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>八字算命大师</h1>
+            <p class="subtitle">传统命理 · 科学分析 · 精准预测</p>
+        </header>
+        
+        <div class="main-content">
+            <div class="input-section">
+                <div class="input-form-container">
+                    <h2>请输入出生信息</h2>
+                    <form id="baziForm" class="input-form">
+                        <div class="form-group">
+                            <label>历法类型：</label>
+                            <div class="radio-group">
+                                <label class="radio-label">
+                                    <input type="radio" name="calendar" value="solar" checked>
+                                    <span>公历</span>
+                                </label>
+                                <label class="radio-label">
+                                    <input type="radio" name="calendar" value="lunar">
+                                    <span>农历</span>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>性别：</label>
+                            <div class="radio-group">
+                                <label class="radio-label">
+                                    <input type="radio" name="gender" value="male" checked>
+                                    <span>男</span>
+                                </label>
+                                <label class="radio-label">
+                                    <input type="radio" name="gender" value="female">
+                                    <span>女</span>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>出生日期：</label>
+                            <div class="date-selects">
+                                <select id="year" class="form-select"></select>
+                                <select id="month" class="form-select"></select>
+                                <select id="day" class="form-select"></select>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>出生时间：</label>
+                            <div class="time-selects">
+                                <select id="hour" class="form-select"></select>
+                                <select id="minute" class="form-select"></select>
+                            </div>
+                        </div>
+                        
+                        <button type="submit" class="submit-btn">开始算命</button>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="result-section">
+                <div id="result" class="result-display">
+                    <div class="placeholder">
+                        <p>请输入出生信息，点击"开始算命"查看结果</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            <p>© 2024 八字算命大师 - 仅供娱乐参考</p>
+        </footer>
+    </div>
+
+    <script>
+        // 数据定义
+        const TIAN_GAN = ['甲', '乙', '丙', '丁', '戊', '己', '庚', '辛', '壬', '癸'];
+        const DI_ZHI = ['子', '丑', '寅', '卯', '辰', '巳', '午', '未', '申', '酉', '戌', '亥'];
+        const SHENG_XIAO = ['鼠', '牛', '虎', '兔', '龙', '蛇', '马', '羊', '猴', '鸡', '狗', '猪'];
+        const WU_XING = ['金', '木', '水', '火', '土'];
+        
+        const TIAN_GAN_WU_XING = {
+            '甲': '木', '乙': '木', '丙': '火', '丁': '火', '戊': '土',
+            '己': '土', '庚': '金', '辛': '金', '壬': '水', '癸': '水'
+        };
+        
+        const DI_ZHI_WU_XING = {
+            '子': '水', '丑': '土', '寅': '木', '卯': '木', '辰': '土', '巳': '火',
+            '午': '火', '未': '土', '申': '金', '酉': '金', '戌': '土', '亥': '水'
+        };
+        
+        const DI_ZHI_CANG_GAN = {
+            '子': ['癸'], '丑': ['己', '癸', '辛'], '寅': ['甲', '丙', '戊'],
+            '卯': ['乙'], '辰': ['戊', '乙', '癸'], '巳': ['丙', '庚', '戊'],
+            '午': ['丁', '己'], '未': ['己', '丁', '乙'], '申': ['庚', '壬', '戊'],
+            '酉': ['辛'], '戌': ['戊', '辛', '丁'], '亥': ['壬', '甲']
+        };
+        
+        const NA_YIN_TABLE = {
+            '甲子': '海中金', '乙丑': '海中金', '丙寅': '炉中火', '丁卯': '炉中火',
+            '戊辰': '大林木', '己巳': '大林木', '庚午': '路旁土', '辛未': '路旁土',
+            '壬申': '剑锋金', '癸酉': '剑锋金', '甲戌': '山头火', '乙亥': '山头火',
+            '丙子': '涧下水', '丁丑': '涧下水', '戊寅': '城头土', '己卯': '城头土',
+            '庚辰': '白蜡金', '辛巳': '白蜡金', '壬午': '杨柳木', '癸未': '杨柳木',
+            '甲申': '泉中水', '乙酉': '泉中水', '丙戌': '屋上土', '丁亥': '屋上土',
+            '戊子': '霹雳火', '己丑': '霹雳火', '庚寅': '松柏木', '辛卯': '松柏木',
+            '壬辰': '长流水', '癸巳': '长流水', '甲午': '沙中金', '乙未': '沙中金',
+            '丙申': '山下火', '丁酉': '山下火', '戊戌': '平地木', '己亥': '平地木',
+            '庚子': '壁上土', '辛丑': '壁上土', '壬寅': '金箔金', '癸卯': '金箔金',
+            '甲辰': '覆灯火', '乙巳': '覆灯火', '丙午': '天河水', '丁未': '天河水',
+            '戊申': '大驿土', '己酉': '大驿土', '庚戌': '钗钏金', '辛亥': '钗钏金',
+            '壬子': '桑柘木', '癸丑': '桑柘木', '甲寅': '大溪水', '乙卯': '大溪水',
+            '丙辰': '沙中土', '丁巳': '沙中土', '戊午': '天上火', '己未': '天上火',
+            '庚申': '石榴木', '辛酉': '石榴木', '壬戌': '大海水', '癸亥': '大海水'
+        };
+        
+        const WU_XING_COLORS = {
+            '金': '#FFD700', '木': '#228B22', '水': '#1E90FF', '火': '#FF4500', '土': '#D2691E'
+        };
+        
+        // 初始化下拉选项
+        function initSelects() {
+            const yearSelect = document.getElementById('year');
+            const monthSelect = document.getElementById('month');
+            const daySelect = document.getElementById('day');
+            const hourSelect = document.getElementById('hour');
+            const minuteSelect = document.getElementById('minute');
+            
+            // 年份 1900-2100
+            for (let y = 1900; y <= 2100; y++) {
+                yearSelect.add(new Option(y + '年', y));
+            }
+            yearSelect.value = 2000;
+            
+            // 月份
+            for (let m = 1; m <= 12; m++) {
+                monthSelect.add(new Option(m + '月', m));
+            }
+            monthSelect.value = 1;
+            
+            // 日期
+            updateDays();
+            
+            // 小时
+            for (let h = 0; h < 24; h++) {
+                hourSelect.add(new Option(h.toString().padStart(2, '0') + '时', h));
+            }
+            hourSelect.value = 12;
+            
+            // 分钟
+            for (let min = 0; min < 60; min++) {
+                minuteSelect.add(new Option(min.toString().padStart(2, '0') + '分', min));
+            }
+            
+            // 监听月份变化更新日期
+            monthSelect.addEventListener('change', updateDays);
+            yearSelect.addEventListener('change', updateDays);
+        }
+        
+        function updateDays() {
+            const year = parseInt(document.getElementById('year').value);
+            const month = parseInt(document.getElementById('month').value);
+            const daySelect = document.getElementById('day');
+            const currentDay = daySelect.value;
+            
+            daySelect.innerHTML = '';
+            const daysInMonth = new Date(year, month, 0).getDate();
+            
+            for (let d = 1; d <= daysInMonth; d++) {
+                daySelect.add(new Option(d + '日', d));
+            }
+            
+            if (currentDay && currentDay <= daysInMonth) {
+                daySelect.value = currentDay;
+            }
+        }
+        
+        // 计算年干支
+        function getYearGanZhi(year) {
+            return TIAN_GAN[(year - 4) % 10] + DI_ZHI[(year - 4) % 12];
+        }
+        
+        // 计算日干支
+        function getDayGanZhi(year, month, day) {
+            const baseDate = new Date(1900, 0, 1);
+            const targetDate = new Date(year, month - 1, day);
+            const diffDays = Math.floor((targetDate - baseDate) / (24 * 60 * 60 * 1000));
+            return TIAN_GAN[(0 + diffDays) % 10] + DI_ZHI[(10 + diffDays) % 12];
+        }
+        
+        // 计算八字
+        function calculateBaZi(year, month, day, hour) {
+            const yearGZ = getYearGanZhi(year);
+            const dayGZ = getDayGanZhi(year, month, day);
+            
+            // 简化计算月柱和时柱（实际应该根据农历）
+            const monthGZ = TIAN_GAN[(TIAN_GAN.indexOf(yearGZ[0]) + 2) % 10] + DI_ZHI[(month + 1) % 12];
+            
+            const dayGanIndex = TIAN_GAN.indexOf(dayGZ[0]);
+            let startGan = 0;
+            switch (dayGanIndex % 5) {
+                case 0: startGan = 0; break;
+                case 1: startGan = 2; break;
+                case 2: startGan = 4; break;
+                case 3: startGan = 6; break;
+                case 4: startGan = 8; break;
+            }
+            const shiChen = Math.floor((hour + 1) / 2) % 12;
+            const hourGZ = TIAN_GAN[(startGan + shiChen) % 10] + DI_ZHI[shiChen];
+            
+            return {
+                year: { ganZhi: yearGZ, gan: yearGZ[0], zhi: yearGZ[1] },
+                month: { ganZhi: monthGZ, gan: monthGZ[0], zhi: monthGZ[1] },
+                day: { ganZhi: dayGZ, gan: dayGZ[0], zhi: dayGZ[1] },
+                hour: { ganZhi: hourGZ, gan: hourGZ[0], zhi: hourGZ[1] },
+                shengXiao: SHENG_XIAO[(year - 4) % 12]
+            };
+        }
+        
+        // 统计五行
+        function countWuXing(bazi) {
+            const count = { '金': 0, '木': 0, '水': 0, '火': 0, '土': 0 };
+            const pillars = [bazi.year, bazi.month, bazi.day, bazi.hour];
+            
+            pillars.forEach(p => {
+                count[TIAN_GAN_WU_XING[p.gan]]++;
+                count[DI_ZHI_WU_XING[p.zhi]]++;
+                if (DI_ZHI_CANG_GAN[p.zhi]) {
+                    DI_ZHI_CANG_GAN[p.zhi].forEach(gan => {
+                        count[TIAN_GAN_WU_XING[gan]] += 0.5;
+                    });
+                }
+            });
+            
+            return count;
+        }
+        
+        // 计算十神
+        function getShiShen(dayGan, targetGan) {
+            if (dayGan === targetGan) return '比肩';
+            
+            const dayIndex = TIAN_GAN.indexOf(dayGan);
+            const targetIndex = TIAN_GAN.indexOf(targetGan);
+            const dayWuXing = TIAN_GAN_WU_XING[dayGan];
+            const targetWuXing = TIAN_GAN_WU_XING[targetGan];
+            const dayYinYang = dayIndex % 2 === 0 ? '阳' : '阴';
+            const targetYinYang = targetIndex % 2 === 0 ? '阳' : '阴';
+            
+            // 同我者为比劫
+            if (targetWuXing === dayWuXing) {
+                return targetYinYang === dayYinYang ? '比肩' : '劫财';
+            }
+            
+            // 我生者为食伤
+            const shengRelations = { '木': '火', '火': '土', '土': '金', '金': '水', '水': '木' };
+            if (shengRelations[dayWuXing] === targetWuXing) {
+                return targetYinYang === dayYinYang ? '食神' : '伤官';
+            }
+            
+            // 我克者为财官
+            const keRelations = { '木': '土', '土': '水', '水': '火', '火': '金', '金': '木' };
+            if (keRelations[dayWuXing] === targetWuXing) {
+                return targetYinYang === dayYinYang ? '偏财' : '正财';
+            }
+            
+            // 克我者为官杀
+            if (keRelations[targetWuXing] === dayWuXing) {
+                return targetYinYang === dayYinYang ? '七杀' : '正官';
+            }
+            
+            // 生我者为印绶
+            if (shengRelations[targetWuXing] === dayWuXing) {
+                return targetYinYang === dayYinYang ? '偏印' : '正印';
+            }
+            
+            return '';
+        }
+        
+        // 显示结果
+        function displayResult(bazi, wuXingCount) {
+            const maxCount = Math.max(...Object.values(wuXingCount));
+            
+            const html = `
+                <div class="section">
+                    <h3>八字排盘</h3>
+                    <div class="bazi-table">
+                        <div class="bazi-cell label"></div>
+                        <div class="bazi-cell label">年柱</div>
+                        <div class="bazi-cell label">月柱</div>
+                        <div class="bazi-cell label">日柱</div>
+                        <div class="bazi-cell label">时柱</div>
+                        
+                        <div class="bazi-cell label">天干</div>
+                        <div class="bazi-cell gan">${bazi.year.gan}</div>
+                        <div class="bazi-cell gan">${bazi.month.gan}</div>
+                        <div class="bazi-cell gan day-master">${bazi.day.gan}</div>
+                        <div class="bazi-cell gan">${bazi.hour.gan}</div>
+                        
+                        <div class="bazi-cell label">地支</div>
+                        <div class="bazi-cell zhi">${bazi.year.zhi}</div>
+                        <div class="bazi-cell zhi">${bazi.month.zhi}</div>
+                        <div class="bazi-cell zhi">${bazi.day.zhi}</div>
+                        <div class="bazi-cell zhi">${bazi.hour.zhi}</div>
+                    </div>
+                    <div class="shengxiao">
+                        生肖：<span class="highlight">${bazi.shengXiao}</span>
+                    </div>
+                </div>
+                
+                <div class="section">
+                    <h3>四柱十神</h3>
+                    <div class="bazi-table" style="grid-template-columns: 80px repeat(4, 1fr);">
+                        <div class="bazi-cell label"></div>
+                        <div class="bazi-cell label">年柱</div>
+                        <div class="bazi-cell label">月柱</div>
+                        <div class="bazi-cell label">日柱</div>
+                        <div class="bazi-cell label">时柱</div>
+                        
+                        <div class="bazi-cell label">天干</div>
+                        <div class="bazi-cell">${getShiShen(bazi.day.gan, bazi.year.gan)}</div>
+                        <div class="bazi-cell">${getShiShen(bazi.day.gan, bazi.month.gan)}</div>
+                        <div class="bazi-cell day-master">日主</div>
+                        <div class="bazi-cell">${getShiShen(bazi.day.gan, bazi.hour.gan)}</div>
+                    </div>
+                    <div style="text-align: center; margin-top: 10px; color: #666; font-style: italic;">
+                        以日干「${bazi.day.gan}」为日主（命主）
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h3>纳音五行</h3>
+                    <div class="bazi-table" style="grid-template-columns: repeat(4, 1fr);">
+                        <div class="bazi-cell">${NA_YIN_TABLE[bazi.year.ganZhi] || '-'}</div>
+                        <div class="bazi-cell">${NA_YIN_TABLE[bazi.month.ganZhi] || '-'}</div>
+                        <div class="bazi-cell">${NA_YIN_TABLE[bazi.day.ganZhi] || '-'}</div>
+                        <div class="bazi-cell">${NA_YIN_TABLE[bazi.hour.ganZhi] || '-'}</div>
+                    </div>
+                </div>
+                
+                <div class="section">
+                    <h3>五行分析</h3>
+                    <div class="wuxing-bars">
+                        ${Object.entries(wuXingCount).map(([wx, count]) => `
+                            <div class="wuxing-bar-item">
+                                <span class="wuxing-name" style="color: ${WU_XING_COLORS[wx]}">${wx}</span>
+                                <div class="bar-container">
+                                    <div class="bar-fill" style="width: ${(count / maxCount * 100)}%; background-color: ${WU_XING_COLORS[wx]}"></div>
+                                </div>
+                                <span class="wuxing-value">${count.toFixed(1)}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+                
+                <div class="section">
+                    <h3>日主分析</h3>
+                    <div class="info-item">
+                        <span>日主：</span>
+                        <span class="highlight">${bazi.day.gan}</span>
+                        <span class="wuxing-tag" style="background-color: ${WU_XING_COLORS[TIAN_GAN_WU_XING[bazi.day.gan]]}">
+                            ${TIAN_GAN_WU_XING[bazi.day.gan]}
+                        </span>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('result').innerHTML = html;
+        }
+        
+        // 表单提交
+        document.getElementById('baziForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const year = parseInt(document.getElementById('year').value);
+            const month = parseInt(document.getElementById('month').value);
+            const day = parseInt(document.getElementById('day').value);
+            const hour = parseInt(document.getElementById('hour').value);
+            
+            const bazi = calculateBaZi(year, month, day, hour);
+            const wuXingCount = countWuXing(bazi);
+            
+            displayResult(bazi, wuXingCount);
+        });
+        
+        // 初始化
+        initSelects();
+    </script>
+</body>
+</html>
